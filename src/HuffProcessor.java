@@ -69,8 +69,8 @@ public class HuffProcessor {
 		int[] freq = new int[ALPH_SIZE + 1];
 		while (true){
 			int val = in.readBits(BITS_PER_WORD);
-			freq[val]++;
 			if (val == -1) break;
+			freq[val]++;
 		}
 		freq[PSEUDO_EOF] = 1;
 		return freq;
@@ -94,6 +94,9 @@ public class HuffProcessor {
 			pq.add(t);
 		}
 		HuffNode root = pq.remove();
+		if(myDebugLevel >= DEBUG_HIGH) {
+			System.out.printf("pq created with %d nodes\n", pq.size());
+		}
 		return root;
 	}
 	
@@ -127,10 +130,12 @@ public class HuffProcessor {
 	private void writeCompressedBits(String[] codings, BitInputStream in, BitOutputStream out) {
 		while(true) {
 			int val = in.readBits(BITS_PER_WORD);
+			if(val == -1) break;
 			String code = codings[val];
 			out.writeBits(code.length(), Integer.parseInt(code, 2));
-			if(val == -1) break;
 		}
+		String code = codings[PSEUDO_EOF];
+		out.writeBits(code.length(), Integer.parseInt(code, 2));
 	}
 	
 	/**
